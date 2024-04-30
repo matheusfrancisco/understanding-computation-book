@@ -6,6 +6,11 @@
  :aliases
  {;; frontend
   ;; clj -M:test
+  :dev {:extra-paths ["test"]
+        :extra-deps  {lambdaisland/kaocha {:mvn/version "1.70.1086"}
+                      lambdaisland/kaocha-cloverage {:mvn/version "1.0.75"}
+                      nubank/matcher-combinators {:mvn/version "3.5.1"}
+                      nubank/state-flow {:mvn/version "5.14.2"}}}
   :test {:extra-paths ["test"]
          :extra-deps  {lambdaisland/kaocha {:mvn/version "1.70.1086"}
                        lambdaisland/kaocha-cloverage {:mvn/version "1.0.75"}

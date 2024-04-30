@@ -1,28 +1,28 @@
-(ns br.com.matheusfrancisco.book.core-test
+(ns br.com.matheusfrancisco.book.small-steps-test
   (:require
-   [br.com.matheusfrancisco.book.core :refer [->Add
-                                              ->Assign
-                                              ->While
-                                              ->DoNothing
-                                              ->Sequence
-                                              ->Bool
-                                              ->LessThan
-                                              ->If
-                                              ->Multiply
-                                              ->Numeric
-                                              ->Variable
-                                              -reduced machine-run]]
+   [br.com.matheusfrancisco.book.small-steps :refer [->Add
+                                                     ->Assign
+                                                     ->While
+                                                     ->DoNothing
+                                                     ->Sequence
+                                                     ->Bool
+                                                     ->LessThan
+                                                     ->If
+                                                     ->Multiply
+                                                     ->Numeric
+                                                     ->Variable
+                                                     -reduced machine-run]]
    [clojure.test :refer [deftest is testing]]))
 
 (deftest test-small-step-semantics
   (testing "build a tree with the expression (1 * 2) + (3 * 4)"
-    (is (= #br.com.matheusfrancisco.book.core.Add
-            {:left #br.com.matheusfrancisco.book.core.Multiply
-                    {:left #br.com.matheusfrancisco.book.core.Numeric{:value 1},
-                     :right #br.com.matheusfrancisco.book.core.Numeric{:value 2}}
-             :right #br.com.matheusfrancisco.book.core.Multiply
-                     {:left #br.com.matheusfrancisco.book.core.Numeric{:value 3},
-                      :right #br.com.matheusfrancisco.book.core.Numeric{:value 4}}}
+    (is (= #br.com.matheusfrancisco.book.small-steps.Add
+            {:left #br.com.matheusfrancisco.book.small-steps.Multiply
+                    {:left #br.com.matheusfrancisco.book.small-steps.Numeric{:value 1},
+                     :right #br.com.matheusfrancisco.book.small-steps.Numeric{:value 2}}
+             :right #br.com.matheusfrancisco.book.small-steps.Multiply
+                     {:left #br.com.matheusfrancisco.book.small-steps.Numeric{:value 3},
+                      :right #br.com.matheusfrancisco.book.small-steps.Numeric{:value 4}}}
            (->Add
             (->Multiply (->Numeric 1) (->Numeric 2))
             (->Multiply (->Numeric 3) (->Numeric 4))))))
@@ -62,8 +62,8 @@
                str))))
 
   (testing "If if(x) {y=1} else {do-nothing}"
-    (is (= [#br.com.matheusfrancisco.book.core.DoNothing{}
-            {:x #br.com.matheusfrancisco.book.core.Bool{:value false}}]
+    (is (= [#br.com.matheusfrancisco.book.small-steps.DoNothing{}
+            {:x #br.com.matheusfrancisco.book.small-steps.Bool{:value false}}]
            (-> (machine-run
                 (->If (->Variable :x)
                       (->Assign :y (->Numeric 1))
@@ -114,7 +114,7 @@
 
 (deftest test-reduce
   (testing "reduce the expression (1 * 2) + (3 * 4) to 14"
-    (is (= #br.com.matheusfrancisco.book.core.Numeric{:value 14}
+    (is (= #br.com.matheusfrancisco.book.small-steps.Numeric{:value 14}
            (-> (machine-run
                 (->Assign :result (->Add
                                    (->Multiply (->Numeric 1) (->Numeric 2))
@@ -132,7 +132,7 @@
                     (-reduced {})
                     (-reduced {})))))
 
-    (is (= #br.com.matheusfrancisco.book.core.Bool{:value false}
+    (is (= #br.com.matheusfrancisco.book.small-steps.Bool{:value false}
            (-> (->LessThan
                 (->Numeric 5)
                 (->Add
