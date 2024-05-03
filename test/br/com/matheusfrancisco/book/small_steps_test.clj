@@ -12,17 +12,18 @@
                                                      ->Numeric
                                                      ->Variable
                                                      -reduced machine-run]]
+   [clojure.core :refer [str]]
    [clojure.test :refer [deftest is testing]]))
 
 (deftest test-small-step-semantics
   (testing "build a tree with the expression (1 * 2) + (3 * 4)"
-    (is (= #br.com.matheusfrancisco.book.small-steps.Add
-            {:left #br.com.matheusfrancisco.book.small-steps.Multiply
-                    {:left #br.com.matheusfrancisco.book.small-steps.Numeric{:value 1},
-                     :right #br.com.matheusfrancisco.book.small-steps.Numeric{:value 2}}
-             :right #br.com.matheusfrancisco.book.small-steps.Multiply
-                     {:left #br.com.matheusfrancisco.book.small-steps.Numeric{:value 3},
-                      :right #br.com.matheusfrancisco.book.small-steps.Numeric{:value 4}}}
+    (is (= #br.com.matheusfrancisco.book.small_steps.Add
+            {:left #br.com.matheusfrancisco.book.small_steps.Multiply
+                    {:left #br.com.matheusfrancisco.book.small_steps.Numeric{:value 1},
+                     :right #br.com.matheusfrancisco.book.small_steps.Numeric{:value 2}}
+             :right #br.com.matheusfrancisco.book.small_steps.Multiply
+                     {:left #br.com.matheusfrancisco.book.small_steps.Numeric{:value 3},
+                      :right #br.com.matheusfrancisco.book.small_steps.Numeric{:value 4}}}
            (->Add
             (->Multiply (->Numeric 1) (->Numeric 2))
             (->Multiply (->Numeric 3) (->Numeric 4))))))
@@ -62,8 +63,8 @@
                str))))
 
   (testing "If if(x) {y=1} else {do-nothing}"
-    (is (= [#br.com.matheusfrancisco.book.small-steps.DoNothing{}
-            {:x #br.com.matheusfrancisco.book.small-steps.Bool{:value false}}]
+    (is (= [#br.com.matheusfrancisco.book.small_steps.DoNothing{}
+            {:x #br.com.matheusfrancisco.book.small_steps.Bool{:value false}}]
            (-> (machine-run
                 (->If (->Variable :x)
                       (->Assign :y (->Numeric 1))
@@ -114,7 +115,7 @@
 
 (deftest test-reduce
   (testing "reduce the expression (1 * 2) + (3 * 4) to 14"
-    (is (= #br.com.matheusfrancisco.book.small-steps.Numeric{:value 14}
+    (is (= #br.com.matheusfrancisco.book.small_steps.Numeric{:value 14}
            (-> (machine-run
                 (->Assign :result (->Add
                                    (->Multiply (->Numeric 1) (->Numeric 2))
@@ -132,7 +133,7 @@
                     (-reduced {})
                     (-reduced {})))))
 
-    (is (= #br.com.matheusfrancisco.book.small-steps.Bool{:value false}
+    (is (= #br.com.matheusfrancisco.book.small_steps.Bool{:value false}
            (-> (->LessThan
                 (->Numeric 5)
                 (->Add

@@ -8,93 +8,71 @@
 ;big-step semantics is often written in a looser style that just says which subcomputations to perform
 ;without necessarily specifying what order to perform them in.[14]
 
-(defprotocol Expression
+(defprotocol Expressions
   (evaluate [this env]))
 
 (defrecord Numeric [value]
-  Expression
+  Expressions
   (evaluate [this _] this))
 
 (defrecord Bool [value]
-  Expression
+  Expressions
   (evaluate [this _] this))
 
 (defrecord Variable [varname]
-  Expression
+  Expressions
   (evaluate [this env] (get env varname)))
 
 (defrecord Add [left right]
-  Expression
+  Expressions
   (evaluate [this env]
     (let [left-value (evaluate left env)
           right-value (evaluate right env)]
       (->Numeric (+ (.value left-value) (.value right-value))))))
 
 (defrecord Multiply [left right]
-  Expression
+  Expressions
   (evaluate [this env]
     (let [left-value (evaluate left env)
           right-value (evaluate right env)]
       (->Numeric (* (.value left-value) (.value right-value))))))
 
 (defrecord LessThan [left right]
-  Expression
+  Expressions
   (evaluate [this env]
     (let [left-value (evaluate left env)
           right-value (evaluate right env)]
       (->Bool (< (.value left-value) (.value right-value))))))
 
-;3 < 4
-(evaluate (->LessThan (->Numeric 3) (->Numeric 4)) {}) ;{:value true}
-
-(evaluate (->Multiply (->Numeric 10) (->Numeric 2)) {}) ;{:value 20}
-(evaluate (->Add (->Numeric 1) (->Numeric 2)) {}) ;{:value 3}
-
-(evaluate (->Numeric 1) {})
-
 ; Statments
 
 (defrecord Assign [varname expression]
-  Expression
+  Expressions
   (evaluate [this env]
     (let [value (evaluate expression env)]
       (assoc env varname value))))
 
 (defrecord DoNothing []
-  Expression
+  Expressions
   (evaluate [this env] env))
 
 (defrecord If [condition consequence alternative]
-  Expression
+  Expressions
   (evaluate [this env]
     (let [condition-value (evaluate condition env)]
       (condp = condition-value
         (->Bool true) (evaluate consequence env)
         (->Bool false) (evaluate alternative env)))))
 
-#_(defrecord Sequences [first-sq second-sq]
-    (evaluate [this env]
-      (let [first-env (evaluate first-sq env)]
-        (evaluate second-sq first-env))))
+(defrecord Sequences [first-sq second-sq]
+  Expressions
+  (evaluate [this env]
+    (evaluate second-sq (evaluate first-sq env))))
 
-; x = 1 + 1; y = x + 3
-#_(evaluate (->Sequences
-             (->Assign :x (->Add (->Numeric 1) (->Numeric 1)))
-             (->Assign :y (->Add (->Variable :x) (->Numeric 3)))) {})
-
-#_(defrecord While [condition body]
-    (evaluate [this env]
-      (let [condition-value (evaluate condition env)]
-        (condp = condition-value
-          (->Bool true) (evaluate this (evaluate body env))
-          (->Bool false) env))))
-
-#_(evaluate (->If (->Bool true)
-                  (->Assign :x (->Numeric 1))
-                  (->Assign :y (->Numeric 2))) {})
-#_(evaluate (->While
-             (->LessThan (->Variable :x) (->Numeric 5))
-             (->Assign :x (->Add (->Variable :x) (->Numeric 1))))
-            {:x (->Numeric 1)})
-
-;{:x {:value 1}}
+(defrecord While [condition body]
+  Expressions
+  (evaluate [this env]
+    (let [condition-value (evaluate condition env)]
+      (condp = condition-value
+        (->Bool true) (evaluate this (evaluate body env))
+        (->Bool false) env))))

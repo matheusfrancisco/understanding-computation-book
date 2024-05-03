@@ -152,7 +152,7 @@
               [(->Sequence reduced-f second-seq) reduced-env])))
 
   Object
-  (toString [_] (format "%s; %s" first second)))
+  (toString [_] (format "%s; %s" (str first) (str second))))
 
 ;;while (x < 5) { x = x + 1 }
 ;;Perhaps this reduction rule seems like a bit of a dodge—it’s almost as though we’re perpetually postponing reduction 
@@ -167,6 +167,11 @@
 ;;is a valid piece of Simple syntax—we can certainly construct an abstract syntax tree to represent it—but it’ll
 ;;blow up when we try to repeatedly reduce it, because the abstract machine will end up trying to add «1» to «true»:
 ;;if (x) {y ; while(x) {}} else {}
+;;
+;;
+
+;; while (x<5) { x = x + 1 }
+;; if(x < 5) { x = x + 1; while(x < 5) {x = x +1} } else {do-nothing}
 (defrecord While [condition body]
   Reducible
   (reducible? [_] true)
@@ -186,6 +191,14 @@
     [stmt env]))
 
 (comment
+  (str (->While
+        (->LessThan (->Variable :x) (->Numeric 5))
+        (->Assign :x (->Add (->Variable :x) (->Numeric 1)))))
+
+  #_(str (->Sequence
+          (->Assign :x (->Add (->Numeric 1) (->Numeric 2)))
+          (->Assign :y (->Add (->Variable :x) (->Numeric 3)))))
+
   (machine-run
    (->While
     (->LessThan (->Variable :x) (->Numeric 5))
