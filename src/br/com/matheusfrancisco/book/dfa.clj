@@ -18,8 +18,8 @@
 
 (defrecord FARule [state character next-state]
   IRule
-  (applies-to? [_ n-state next-character]
-    (and (= next-state state) (= next-character character)))
+  (applies-to? [this state next-character]
+    (and (= (:state this) state) (= (:character this) next-character)))
 
   (follow [_]
     next-state))
@@ -31,4 +31,12 @@
 
   (rule-for [this state character]
     (first (filter #(applies-to? % state character) rules))))
+
+(defprotocol IDfa
+  (accepting? [this]))
+
+(defrecord Dfa [current-state accept-states rulebook]
+  IDfa
+  (accepting? [_]
+    (some #(= % current-state) accept-states)))
 
